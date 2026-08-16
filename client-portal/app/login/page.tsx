@@ -64,11 +64,15 @@ export default function LoginPage() {
                 id="password"
                 type="password"
                 required
+                minLength={8}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 className="focus-ring w-full rounded-lg border border-border px-3 py-2 text-sm outline-none"
               />
+              <p className="mt-1 text-xs text-ink/50">
+                First time here? Just choose a password (8+ characters) — it'll be set up as your account password automatically.
+              </p>
             </div>
             {error && <p className="text-sm text-rose">{error}</p>}
             <button

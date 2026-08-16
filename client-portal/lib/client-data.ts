@@ -42,12 +42,25 @@ export async function findClientByEmail(email: string): Promise<ClientRecord | n
   return { id: match.id, name: match.name, email: match.email?.[0]?.text ?? null };
 }
 
-import { scryptSync, timingSafeEqual } from "crypto";
+import { scryptSync, randomBytes, timingSafeEqual } from "crypto";
 
-export async function verifyPassword(
+export type LoginResult = "setup_success" | "login_success" | "wrong_password" | "password_too_short";
+
+/**
+ * Handles both first-time password setup and regular login with one function.
+ * If the client has no password on file yet, the submitted password becomes
+ * their password (hashed and stored). If they already have one, it's verified
+ * normally. This gives clients self-service account setup on their first visit
+ * without needing a separate "create account" flow or email verification step.
+ */
+export async function setupOrVerifyPassword(
   clientItemId: string,
   submittedPassword: string
-): Promise<boolean> {
+): Promise<LoginResult> {
+  if (submittedPassword.length < 8) {
+    return "password_too_short";
+  }
+
   const data = await mondayQuery<any>(
     `query ($ids: [ID!]) {
       items(ids: $ids) {
@@ -57,15 +70,37 @@ export async function verifyPassword(
     { ids: [clientItemId] }
   );
 
-  const stored = data.items?.[0]?.password?.[0]?.text;
-  if (!stored || !stored.includes(":")) return false;
+  const stored: string | undefined = data.items?.[0]?.password?.[0]?.text;
 
+  // No password on file yet — this submission sets it up.
+  if (!stored || !stored.includes(":")) {
+    const salt = randomBytes(16).toString("hex");
+    const hash = scryptSync(submittedPassword, salt, 64).toString("hex");
+
+    await mondayQuery(
+      `mutation ($boardId: ID!, $itemId: ID!, $values: JSON!) {
+        change_multiple_column_values(board_id: $boardId, item_id: $itemId, column_values: $values) { id }
+      }`,
+      {
+        boardId: BOARDS.CLIENT_DIRECTORY,
+        itemId: clientItemId,
+        values: JSON.stringify({ [CLIENT_COLS.ACCESS_CODE]: `${salt}:${hash}` })
+      }
+    );
+
+    return "setup_success";
+  }
+
+  // Password already exists — verify normally.
   const [salt, hashHex] = stored.split(":");
   const expected = Buffer.from(hashHex, "hex");
   const actual = scryptSync(submittedPassword, salt, 64);
 
-  if (expected.length !== actual.length) return false;
-  return timingSafeEqual(expected, actual);
+  if (expected.length !== actual.length || !timingSafeEqual(expected, actual)) {
+    return "wrong_password";
+  }
+
+  return "login_success";
 }
 
 export interface OpenTask {

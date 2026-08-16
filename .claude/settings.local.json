@@ -6,7 +6,29 @@
       "Bash(npm install *)",
       "Bash(node -e \"console.log\\(require\\('crypto'\\).randomBytes\\(32\\).toString\\('base64'\\)\\)\")",
       "Bash(code \"C:\\\\Users\\\\yu7al\\\\OneDrive\\\\Desktop\\\\client-portal\")",
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(npm run *)",
+      "Bash(mv .env.local .env.local.bak)",
+      "Bash(rm -rf .next)",
+      "Bash(rm -rf node_modules/resend)",
+      "Bash(git add *)",
+      "Bash(npm -v)",
+      "Bash(git -C \"/c/Users/yu7al/OneDrive/Desktop/uno\" status)",
+      "Bash(npm audit *)",
+      "Bash(tail -30 /tmp/uno-server.log)",
+      "Bash(cp /tmp/test-sim.mjs \"/c/Users/yu7al/OneDrive/Desktop/uno/client/test-sim.mjs\")",
+      "Bash(node test-sim.mjs)",
+      "Bash(rm test-sim.mjs)",
+      "Bash(curl -s http://localhost:4000/health)",
+      "Bash(taskkill //F //IM node.exe)",
+      "Bash(curl -s http://localhost:5173)",
+      "Bash(npx tsx *)",
+      "Bash(rm \"/c/Users/yu7al/OneDrive/Desktop/uno/server/test-specials.ts\")",
+      "Bash(curl -s \"http://localhost:4000/socket.io/?EIO=4&transport=polling\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:5173)",
+      "Bash(gh auth *)",
+      "Bash(gh --version)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:4000/health)"
     ]
   }
 }
